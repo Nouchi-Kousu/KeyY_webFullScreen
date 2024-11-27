@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Y键网页全屏
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/Nouchi-Kousu/KeyY_webFullScreen/
 // @version      2024-11-27
 // @description  B 站播放页面 Y 键网页全屏
 // @author       Nouchi
