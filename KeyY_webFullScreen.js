@@ -2,8 +2,8 @@
 // @name         Y键网页全屏
 // @namespace    http://tampermonkey.net/
 // @version      2024-11-27
-// @description  try to take over the world!
-// @author       You
+// @description  B 站播放页面 Y 键网页全屏
+// @author       Nouchi
 // @match        *://www.bilibili.com/video/*
 // @match        *://www.bilibili.com/list/*
 // @icon         http://bilibili.com/favicon.ico
