@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Y键网页全屏
 // @namespace    https://github.com/Nouchi-Kousu/KeyY_webFullScreen/
-// @version      2026-04-10
+// @version      2026-04-10.1
 // @description  B 站播放页面 Y 键网页全屏
 // @author       Nouchi
 // @match        *://www.bilibili.com/video/*
@@ -14,36 +14,28 @@
 
 (() => {
     "use strict";
-    const video_task = [true, true];
     const video_observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === "childList") {
-                const webFullScreen = video_task[0]
-                    ? document.querySelector('div[aria-label="网页全屏"]')
-                    : null;
+                const webFullScreen = document.querySelector(
+                    'div[aria-label="网页全屏"]',
+                );
                 if (webFullScreen) {
-                    video_task[0] = false;
                     document.addEventListener("keydown", (e) => {
+                        const target = e.target;
+                        if (
+                            target.tagName === "INPUT" ||
+                            target.tagName === "TEXTAREA" ||
+                            target.isContentEditable
+                        )
+                            return;
                         if (e.code == "KeyY") {
                             webFullScreen.click();
                         }
                     });
+                    video_observer.disconnect();
+                    break;
                 }
-                const searchInput = video_task[1]
-                    ? document.querySelector("input.nav-search-input")
-                    : null;
-                if (searchInput) {
-                    video_task[1] = false;
-                    searchInput.addEventListener("keydown", (e) => {
-                        if (e.code == "KeyY") {
-                            e.stopPropagation();
-                        }
-                    });
-                }
-            }
-            if (!video_task[0] && !video_task[1]) {
-                video_observer.disconnect();
-                break;
             }
         }
     });
@@ -53,6 +45,13 @@
             const livePlayer = window.top && window.top.livePlayer;
             if (!livePlayer) continue;
             document.addEventListener("keydown", (e) => {
+                const target = e.target;
+                if (
+                    target.tagName === "INPUT" ||
+                    target.tagName === "TEXTAREA" ||
+                    target.isContentEditable
+                )
+                    return;
                 if (e.code == "KeyY") {
                     const isWebFullscreenNow =
                         document.body &&
