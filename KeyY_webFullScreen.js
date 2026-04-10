@@ -1,37 +1,81 @@
 // ==UserScript==
 // @name         Y键网页全屏
 // @namespace    https://github.com/Nouchi-Kousu/KeyY_webFullScreen/
-// @version      2024-11-27
+// @version      2026-04-10
 // @description  B 站播放页面 Y 键网页全屏
 // @author       Nouchi
 // @match        *://www.bilibili.com/video/*
 // @match        *://www.bilibili.com/list/*
+// @match        *://live.bilibili.com/*
 // @icon         http://bilibili.com/favicon.ico
 // @grant        none
 // @license      MIT
 // ==/UserScript==
 
 (() => {
-    'use strict'
-    const observer = new MutationObserver((mutationsList) => {
+    "use strict";
+    const video_task = [true, true];
+    const video_observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                const webFullScreen = document.querySelector('div[aria-label="网页全屏"]')
+            if (mutation.type === "childList") {
+                const webFullScreen = video_task[0]
+                    ? document.querySelector('div[aria-label="网页全屏"]')
+                    : null;
                 if (webFullScreen) {
-                    console.log('目标元素已加载:', webFullScreen)
-                    document.addEventListener('keydown',(e)=>{
-                        if(e.code == 'KeyY'){
-                            webFullScreen.click()
+                    video_task[0] = false;
+                    document.addEventListener("keydown", (e) => {
+                        if (e.code == "KeyY") {
+                            webFullScreen.click();
                         }
-                    })
-                    observer.disconnect()
-                    break
+                    });
+                }
+                const searchInput = video_task[1]
+                    ? document.querySelector("input.nav-search-input")
+                    : null;
+                if (searchInput) {
+                    video_task[1] = false;
+                    searchInput.addEventListener("keydown", (e) => {
+                        if (e.code == "KeyY") {
+                            e.stopPropagation();
+                        }
+                    });
                 }
             }
+            if (!video_task[0] && !video_task[1]) {
+                video_observer.disconnect();
+                break;
+            }
         }
-    })
+    });
 
-    observer.observe(document.body, { childList: true, subtree: true })
+    const live_observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            const livePlayer = window.top && window.top.livePlayer;
+            if (!livePlayer) continue;
+            document.addEventListener("keydown", (e) => {
+                if (e.code == "KeyY") {
+                    const isWebFullscreenNow =
+                        document.body &&
+                        document.body.classList &&
+                        document.body.classList.contains("player-full-win");
+                    const nextStatus = isWebFullscreenNow ? 0 : 1;
+                    livePlayer.setFullscreenStatus(nextStatus);
+                }
+            });
+            live_observer.disconnect();
+            break;
+        }
+    });
 
-
-})()
+    if (/live\.bilibili\.com\/\d+/.test(window.location.href)) {
+        live_observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    } else {
+        video_observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+})();
